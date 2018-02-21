@@ -7,8 +7,10 @@ export default () => {
 	let api = Router();
 	// perhaps expose some API metadata at the root
 	api.use('/asr', (req, res) => {
-		asr(path.resolve(data+'/test.mp3'));
-		res.json({ version });
+		asr(path.resolve(data+'/audio.raw')).then(({err, text, data}) => {
+			err && res.status(500)
+			res.json({err, text, data})
+		});
 	});
 
 	return api;
