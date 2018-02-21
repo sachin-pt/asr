@@ -3,6 +3,7 @@ import { Router } from 'express';
 import path from 'path'
 import asr from '../lib/asr'
 import menu from '../lib/menu'
+import xml from 'xml'
 
 const data = path.resolve(__dirname+'/../data')
 export default () => {
@@ -15,9 +16,9 @@ export default () => {
 		});
 	});
 	api.use('/menu', (req, res) => {
-		menu(req).then(({ err, text }) => {
-			err && res.status(500)
-			res.send(text);
+		menu(req).then(({ text }) => {
+			res.set('Content-Type', 'text/xml');
+			res.send(xml(text));
 		});
 	});
 
