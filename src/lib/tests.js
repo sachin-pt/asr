@@ -1,7 +1,10 @@
 import axios from 'axios'
 
 export default () => {
-  axios.get('http://localhost:8080/api/menu?event=NewCall&cid=987654321&&sid=123');
-  axios.get('http://localhost:8080/api/menu?event=GotDTMF&cid=987654321&&sid=123&data=1');
-  axios.get('http://localhost:8080/api/menu?event=Record&cid=987654321&&sid=123&data=http://localhost:8080/download/test.wav');
+  return;
+  if(process.env.NODE_ENV === 'production') {
+    return
+  }
+  axios.get('http://localhost:5006/api/menu?event=GotDTMF&cid=9811785389&&sid=123&data=1');
+  axios.get('http://localhost:5006/api/menu?event=Recognize&cid=9811785389&&sid=123&url=http://localhost:5006/download/test.wav');
 }
