@@ -4,7 +4,6 @@ class Call {
     this.id = id;
     this.phone = phone;
     this.actions = [];
-    this.status = 'NEW' // 'NEW', 'ACTIVE', 'END'
   }
   addAction(action) {
     this.actions.push(action);
@@ -12,7 +11,7 @@ class Call {
   setCallRecord(recording) {
     this.recording = recording;
     // call API exposed by Shakib here
-    asr(recording).then(res => console.log(res)).catch(err => console.log(err))
+    asr(recording).then(res => console.log(res)).catch(err => console.log(err)).then(() => console.log(JSON.stringify(calls)))
   }
 }
 
@@ -36,5 +35,5 @@ class Calls {
     return this
   }
 }
-
-export default new Calls()
+const calls = new Calls()
+export default calls
