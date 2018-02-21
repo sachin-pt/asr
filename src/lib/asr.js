@@ -2,6 +2,7 @@ import fs from 'fs'
 import speech from '@google-cloud/speech'
 import cfg from '../config'
 import path from 'path'
+import downloader from './downloadFile'
 let client = null
 export default (fileName) => {
   // Creates a client - singleton
@@ -11,32 +12,30 @@ export default (fileName) => {
   }))
 
   // Reads a local audio file and converts it to base64
-  const file = fs.readFileSync(fileName)
-  const audioBytes = file.toString('base64')
+  return downloader(fileName).then(({data}) => {
+    const audioBytes = data.toString('base64')
+    // The audio file's encoding, sample rate in hertz, and BCP-47 language code
+    const audio = {
+      content: audioBytes,
+    }
+    const config = {
+      languageCode: 'en-IN',
+      maxAlternatives: 5
+    }
+    const request = {
+      audio: audio,
+      config: config,
+    }
 
-  // The audio file's encoding, sample rate in hertz, and BCP-47 language code
-  const audio = {
-    content: audioBytes,
-  }
-  const config = {
-    encoding: 'LINEAR16',
-    sampleRateHertz: 16000,
-    languageCode: 'en-US',
-  }
-  const request = {
-    audio: audio,
-    config: config,
-  }
-
-  // Detects speech in the audio file
-  return client
-    .recognize(request)
-    .then(data => {
-      const response = data[0]
-      const text = response.results
-        .map(result => result.alternatives[0].transcript)
-        .join('\n')
-      return {text, data}
-    })
-    .catch(err => {{err}})
+    // Detects speech in the audio file
+    return client
+      .recognize(request)
+      .then(dta => {
+        const [{results: [{alternatives = []}] = [{}]} = {}] = dta || [{}]
+        let res = alternatives.filter(({confidence}) => confidence >= 0.8).slice(0, 2)
+        res = (res.length ? res : [alternatives[0]] || []);
+        const data = res.map(({transcript}) => transcript)
+        return {data}
+      })
+  })
 }

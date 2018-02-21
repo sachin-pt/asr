@@ -1,19 +1,15 @@
 import { version } from '../../package.json';
 import { Router } from 'express';
-import path from 'path'
-import asr from '../lib/asr'
 import menu from '../lib/menu'
 import xml from 'xml'
 
-const data = path.resolve(__dirname+'/../data')
+import Calls from '../lib/calls'
 export default () => {
 	let api = Router();
 	// perhaps expose some API metadata at the root
 	api.use('/asr', (req, res) => {
-		asr(path.resolve(data +'/recording2018_02_21_13_30_52.wav')).then(({err, text, data}) => {
-			err && res.status(500)
-			res.json({err, text, data})
-		});
+    Calls.addAction('123', '987654356', 'New Call').addAction('123', '987654356', 'Disconnected').addRecording('123', '987654356', 'http://localhost:8080/download/test.wav')
+    res.sendStatus(200).end()
 	});
 	api.use('/menu', (req, res) => {
 		menu(req).then(({ text }) => {
