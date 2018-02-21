@@ -38,10 +38,15 @@ export default ({event, data, cid: customerNo, called_number: ivrNo, sid, circle
         response: [{_attr: {sid}}, {
           playtext: 'Please speak the location you want to search'
         }, {
-          record: [{_attr: {format: 'wav', silence: '3', maxduration: '30'}}, 'myfilename']
+        //   record: [{_attr: {format: 'wav', silence: '3', maxduration: '30'}}, 'myfilename']
+                recognize: [{ _attr: { type: 'ggl', timeout: '10', silence: '3', lang:'en-IN'}}]
         }]
       }
 
+    //   <response> 
+    //    <playtext speed="2" quality="normal" >Please record your feedback </playtext>    
+    //    <recognize type="ggl" timeout="10" silence="3" lang="en-IN" />
+    //   </response>
       // `<?xml version="1.0" encoding="UTF-8"?>
       // <response sid="12345">
       // <playtext>enter your location</playtext>
@@ -52,6 +57,9 @@ export default ({event, data, cid: customerNo, called_number: ivrNo, sid, circle
     case 'Record':
       Calls.addRecording(sid, customerNo, data)
       break
+    case 'Recognize':
+        console.log(data);
+    break
 
     default:
       Calls.addAction(sid, customerNo, {event, value: data })
