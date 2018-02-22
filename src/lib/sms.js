@@ -7,5 +7,8 @@ export default (res, phone)=> {
     url: 'http://10.10.1.153:5006/apis/nc/smsService',
     method: "POST",
     data
-    }).catch(err => err).then(res => console.log("sms error"))
+    }).catch(err => { 
+        console.log("sms error") 
+        throw err
+    })
 }

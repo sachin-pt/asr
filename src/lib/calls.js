@@ -20,7 +20,7 @@ class Call {
     // call API exposed by Shakib here
     return asr(url).then(res => {
       console.log("recording", url)
-      this.doAction(res.data[0])
+      return this.doAction(res.data[0])
     })
   }
   doAction(text) {
@@ -32,7 +32,7 @@ class Call {
     return axios.get(url).then(res => {
       sendSMS(res, this.phone);
       let topMostAgent = res.data.agents[0]
-      console.log("topMostAgent ", topMostAgent);
+      console.log("topMostAgent ", topMostAgent.name);
       return topMostAgent
     }).catch(err => console.log("%%%%%", err))
 

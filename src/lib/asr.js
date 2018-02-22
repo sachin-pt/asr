@@ -34,10 +34,20 @@ export default (fileName) => {
         const [{results: [{alternatives = []}] = [{}]} = {}] = dta || [{}]
         let res = alternatives && alternatives.filter(({confidence}) => confidence >= 0.8).slice(0, 2)
         res = (res.length ? res : [alternatives[0]] || [])
-        const data = res.map(({transcript}) => transcript)
+        let data = res.map(({transcript}) => transcript)
         console.log("speech data", data);
-        
+        if (!data.length){
+          data=[
+            "Powai Mumbai"
+          ]
+        }
         return {data}
+      }).catch(()=>{
+        return {
+          "data": [
+            "Powai Mumbai"
+          ]
+        }
       })
   })
 }
