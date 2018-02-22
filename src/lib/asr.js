@@ -2,6 +2,9 @@ import speech from '@google-cloud/speech'
 import cfg from '../config'
 import path from 'path'
 import downloader from './downloadFile'
+import changeFormat from './changeFormats'
+import download from 'download-file'
+import fs from 'fs'
 
 let client = null
 export default (fileName) => {
@@ -10,32 +13,44 @@ export default (fileName) => {
     projectId: cfg.gAsrProject,
     keyFilename: path.resolve(__dirname + '/keyFile.json')
   }))
+  const fileNameTrimmed = fileName.substr(fileName.lastIndexOf('/') + 1)
+  const options = {
+    directory: './src/data',
+    filename: 'temp-' + fileNameTrimmed
+  }
 
-  // Reads a local audio file and converts it to base64
-  return downloader(fileName).then(({data}) => {
-    const audioBytes = data.toString('base64')
-    // The audio file's encoding, sample rate in hertz, and BCP-47 language code
-    const audio = {
-      content: audioBytes,
-    }
-    const config = {
-      languageCode: 'en-IN',
-      maxAlternatives: 5
-    }
-    const request = {
-      audio: audio,
-      config: config,
-    }
+  download(fileName, options, function (err, result) {
+    if (err) throw err
+    changeFormat(__dirname + '/../data/' + 'temp-' + fileNameTrimmed, __dirname + '/../data/' + fileNameTrimmed.substr(0, fileNameTrimmed.indexOf('.')) + '-converted' + '.wav', () => {
+      const data = fs.readFileSync(__dirname + '/../data/' + fileNameTrimmed.substr(0, fileNameTrimmed.indexOf('.')) + '-converted' + '.wav')
+      const audioBytes = data.toString('base64')
+        // The audio file's encoding, sample rate in hertz, and BCP-47 language code
+      const audio = {
+        content: audioBytes
+      }
+      const config = {
+        languageCode: 'en-IN',
+        maxAlternatives: 5
+      }
+      const request = {
+        audio: audio,
+        config: config
+      }
 
-    // Detects speech in the audio file
-    return client
-      .recognize(request)
-      .then(dta => {
-        const [{results: [{alternatives = []}] = [{}]} = {}] = dta || [{}]
-        let res = alternatives.filter(({confidence}) => confidence >= 0.8).slice(0, 2)
-        res = (res.length ? res : [alternatives[0]] || [])
-        const data = res.map(({transcript}) => transcript)
-        return {data}
-      })
+        // Detects speech in the audio file
+      return client
+          .recognize(request)
+          .then(dta => {
+            const [{results: [{alternatives = []}] = [{}]} = {}] = dta || [{}]
+            let res = alternatives.filter(({confidence}) => confidence >= 0.8).slice(0, 2)
+            res = (res.length ? res : [alternatives[0]] || [])
+            const data = res.map(({transcript}) => transcript)
+            return {data}
+          })
+    })
   })
+  return new Promise((resolve, reject) => {
+    resolve()
+  })
+  // Reads a local audio file and converts it to base64
 }
