@@ -9,33 +9,17 @@ class Call {
   }
   addAction(action) {
     this.actions.push(action);
+    return this
   }
   setCallRecord({ url, data }) {
     this.recording = url;
     this.data = data;
     if (data) {
       console.log("data", data)
-      return this.doAction(data)
+      return Promise.resolve({data: [data]})
     }
     // call API exposed by Shakib here
-    return asr(url).then(res => {
-      console.log("recording", url)
-      return this.doAction(res.data[0])
-    })
-  }
-  doAction(text) {
-    console.log('text', text);
-    let type = (this.actions || [{ value: '' }])[0].value
-    console.log('type', type);
-    let url = `http://10.10.1.153:5006/apis/nc/hack-result?query=${text}&${type}`
-    console.log("top seller call", url)
-    return axios.get(url).then(res => {
-      sendSMS(res, this.phone);
-      let topMostAgent = res.data.agents[0]
-      console.log("topMostAgent ", topMostAgent.name);
-      return topMostAgent
-    }).catch(err => console.log("%%%%%", err))
-
+    return asr(url)
   }
 }
 
@@ -53,6 +37,7 @@ class Calls {
   addAction(id, phone, action) {
     this.getCallDetails(id, phone).addAction(action)
     return this
+    
   }
   addRecording(id, phone, { url, data }) {
     return this.getCallDetails(id, phone).setCallRecord({ url, data })

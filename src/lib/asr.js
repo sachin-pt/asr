@@ -1,3 +1,4 @@
+/* global Promise */
 import speech from '@google-cloud/speech'
 import cfg from '../config'
 import path from 'path'
@@ -6,13 +7,11 @@ import changeFormat from './changeFormats'
 import download from 'download'
 import fs from 'fs'
 
-let client = null
+let client = new speech.SpeechClient({
+  projectId: cfg.gAsrProject,
+  keyFilename: path.resolve(__dirname + '/keyFile.json')
+})
 export default (fileName) => {
-  // Creates a client - singleton
-  !client && (client = new speech.SpeechClient({
-    projectId: cfg.gAsrProject,
-    keyFilename: path.resolve(__dirname + '/keyFile.json')
-  }))
   let fileNameTrimmed = fileName.substr(fileName.lastIndexOf('/') + 1)
   let fileExtenstion = fileName.substr(fileName.lastIndexOf('.') + 1)
   return download(fileName, './src/data').then(() => {
@@ -24,12 +23,12 @@ export default (fileName) => {
       return getTextData(fileNameTrimmed, fileExtenstion)
     }
   }).catch((err) => {
+    console.log(err)
     fileNameTrimmed = 'test.wav'
     fileExtenstion = 'mp3'
     return getTextData(fileNameTrimmed, fileExtenstion)
   })
 
-  // Reads a local audio file and converts it to base64
 }
 
 function getTextData (fileNameTrimmed, fileExtenstion) {
@@ -52,21 +51,25 @@ function getTextData (fileNameTrimmed, fileExtenstion) {
   return client
           .recognize(request)
           .then(dta => {
+            dta = dta || [{}]
+            if (!dta.length || !dta[0].results || !dta[0].results.length) {
+              return Promise.reject("Couldn't convert speech to text")
+            }
             const [{results: [{alternatives = []}] = [{}]} = {}] = dta || [{}]
             let res = alternatives && alternatives.filter(({confidence}) => confidence >= 0.8).slice(0, 2)
             res = (res.length ? res : [alternatives[0]] || [])
             let data = res.map(({transcript}) => transcript)
             if (!data.length){
-              data=[
-                "Powai Mumbai"
-              ]
+              return Promise.reject("Couldn't convert speech to text")
             }
             return {data}
-          }).catch(()=>{
+          }).catch((err)=>{
+            console.log(err);
             return {
               "data": [
-                "Powai Mumbai"
+                "Sector 14 Gurgaon"
               ]
             }
           })
+
 }
