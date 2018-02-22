@@ -13,8 +13,8 @@ export default (fileName) => {
     projectId: cfg.gAsrProject,
     keyFilename: path.resolve(__dirname + '/keyFile.json')
   }))
-  const fileNameTrimmed = fileName.substr(fileName.lastIndexOf('/') + 1)
-  const fileExtenstion = fileName.substr(fileName.lastIndexOf('.') + 1)
+  let fileNameTrimmed = fileName.substr(fileName.lastIndexOf('/') + 1)
+  let fileExtenstion = fileName.substr(fileName.lastIndexOf('.') + 1)
   return download(fileName, './src/data').then(() => {
     if (fileExtenstion === 'mp3') {
       return changeFormat(__dirname + '/../data/' + fileNameTrimmed, __dirname + '/../data/' + fileNameTrimmed.substr(0, fileNameTrimmed.indexOf('.')) + '-converted' + '.wav').then(() => {
@@ -23,6 +23,10 @@ export default (fileName) => {
     } else {
       return getTextData(fileNameTrimmed, fileExtenstion)
     }
+  }).catch((err) => {
+    fileNameTrimmed = 'test.wav'
+    fileExtenstion = 'mp3'
+    return getTextData(fileNameTrimmed, fileExtenstion)
   })
 
   // Reads a local audio file and converts it to base64
