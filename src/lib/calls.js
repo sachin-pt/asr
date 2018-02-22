@@ -19,9 +19,11 @@ class Call {
       console.log("recording",recording)
       console.log("top seller call", url)
       return axios.get(url).then(res =>{
-        sendSMS(res);    
-      return res.data && res.data.agents && res.data.agents[0]
-      }).catch(err => console.log("number error"))
+        sendSMS(res, this.phone);
+        let topMostAgent = res.data.agents[0]
+        console.log("topMostAgent ", topMostAgent);
+        return topMostAgent
+      }).catch(err => console.log("%%%%%",err))
     })
   }
 }
