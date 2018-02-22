@@ -17,9 +17,9 @@ export default () => {
 			res.send(text);
 		}).catch(err => {console.error(err);
 			res.send(`<?xml version="1.0" encoding="UTF-8"?>
-		<response sid="12345">
-		<playtext>We appreciate your patience. Some error occured, please try again</playtext>
-		</response>`)
+			<response sid="${req.query.sid}">
+			<playtext>We appreciate your patience. Some error occured, please try again</playtext>
+			</response>`)
 	});
 	});
 
