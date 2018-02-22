@@ -14,15 +14,7 @@ class Call {
     this.recording = recording;
     
     // call API exposed by Shakib here
-    return asr(recording).then(res => {
-      let url = `http://10.10.1.153:5006/apis/nc/hack-result?query=${res.data[0]}&${(this.actions || [{ value: '' }])[0].value}`
-      console.log("recording",recording)
-      console.log("top seller call", url)
-      return axios.get(url).then(res =>{
-        sendSMS(res);    
-      return res.data && res.data.agents && res.data.agents[0]
-      }).catch(err => console.log("number error"))
-    })
+    return asr(recording)
   }
 }
 
