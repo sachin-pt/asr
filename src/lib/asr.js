@@ -3,7 +3,7 @@ import cfg from '../config'
 import path from 'path'
 import downloader from './downloadFile'
 import changeFormat from './changeFormats'
-import download from 'download-file'
+import download from 'download'
 import fs from 'fs'
 
 let client = null
@@ -18,13 +18,11 @@ export default (fileName) => {
     directory: './src/data',
     filename: 'temp-' + fileNameTrimmed
   }
-
-  download(fileName, options, function (err, result) {
-    if (err) throw err
-    changeFormat(__dirname + '/../data/' + 'temp-' + fileNameTrimmed, __dirname + '/../data/' + fileNameTrimmed.substr(0, fileNameTrimmed.indexOf('.')) + '-converted' + '.wav', () => {
+  return download(fileName, './src/data').then(() => {
+    return changeFormat(__dirname + '/../data/' + fileNameTrimmed, __dirname + '/../data/' + fileNameTrimmed.substr(0, fileNameTrimmed.indexOf('.')) + '-converted' + '.wav').then(() => {
       const data = fs.readFileSync(__dirname + '/../data/' + fileNameTrimmed.substr(0, fileNameTrimmed.indexOf('.')) + '-converted' + '.wav')
       const audioBytes = data.toString('base64')
-        // The audio file's encoding, sample rate in hertz, and BCP-47 language code
+              // The audio file's encoding, sample rate in hertz, and BCP-47 language code
       const audio = {
         content: audioBytes
       }
@@ -37,20 +35,18 @@ export default (fileName) => {
         config: config
       }
 
-        // Detects speech in the audio file
+              // Detects speech in the audio file
       return client
-          .recognize(request)
-          .then(dta => {
-            const [{results: [{alternatives = []}] = [{}]} = {}] = dta || [{}]
-            let res = alternatives.filter(({confidence}) => confidence >= 0.8).slice(0, 2)
-            res = (res.length ? res : [alternatives[0]] || [])
-            const data = res.map(({transcript}) => transcript)
-            return {data}
-          })
+                .recognize(request)
+                .then(dta => {
+                  const [{results: [{alternatives = []}] = [{}]} = {}] = dta || [{}]
+                  let res = alternatives.filter(({confidence}) => confidence >= 0.8).slice(0, 2)
+                  res = (res.length ? res : [alternatives[0]] || [])
+                  const data = res.map(({transcript}) => transcript)
+                  return {data}
+                })
     })
   })
-  return new Promise((resolve, reject) => {
-    resolve()
-  })
+
   // Reads a local audio file and converts it to base64
 }
