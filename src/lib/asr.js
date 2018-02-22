@@ -1,14 +1,14 @@
-import fs from 'fs'
 import speech from '@google-cloud/speech'
 import cfg from '../config'
 import path from 'path'
 import downloader from './downloadFile'
+
 let client = null
 export default (fileName) => {
   // Creates a client - singleton
   !client && (client = new speech.SpeechClient({
     projectId: cfg.gAsrProject,
-    keyFilename: path.resolve(__dirname+'/keyFile.json')
+    keyFilename: path.resolve(__dirname + '/keyFile.json')
   }))
 
   // Reads a local audio file and converts it to base64
@@ -33,7 +33,7 @@ export default (fileName) => {
       .then(dta => {
         const [{results: [{alternatives = []}] = [{}]} = {}] = dta || [{}]
         let res = alternatives.filter(({confidence}) => confidence >= 0.8).slice(0, 2)
-        res = (res.length ? res : [alternatives[0]] || []);
+        res = (res.length ? res : [alternatives[0]] || [])
         const data = res.map(({transcript}) => transcript)
         return {data}
       })

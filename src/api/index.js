@@ -2,7 +2,6 @@ import { Router } from 'express';
 import menu from '../lib/menu'
 import xml from 'xml'
 
-import Calls from '../lib/calls'
 export default () => {
 	let api = Router();
 	// perhaps expose some API metadata at the root
