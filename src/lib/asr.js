@@ -59,9 +59,9 @@ function getTextData (fileNameTrimmed, fileExtenstion) {
             let res = alternatives && alternatives.filter(({confidence}) => confidence >= 0.8).slice(0, 2)
             res = (res.length ? res : [alternatives[0]] || [])
             let data = res.map(({transcript}) => transcript)
-            if (!data.length){
-              return Promise.reject("Couldn't convert speech to text")
-            }
+            // if (!data.length){
+            //   return Promise.reject("Couldn't convert speech to text")
+            // }
             return {data}
           }).catch((err)=>{
             console.log(err);

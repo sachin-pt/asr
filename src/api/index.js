@@ -6,7 +6,7 @@ export default () => {
 	let api = Router();
 	// perhaps expose some API metadata at the root
 	api.use('/menu', (req, res) => {
-		menu(req.query).then(({ text }) => {
+		menu(req.query).then(({ text }={}) => {
 			if (!text) {
 				throw new Error("Some error")
 			}

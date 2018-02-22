@@ -22,10 +22,10 @@ export default ({url, event, data, cid: customerNo, sid}) => {
       content = `<?xml version="1.0" encoding="UTF-8"?>
         <response sid="${sid}">
         <playtext>Tell us your location of interest. followed by hash. Like sector 32. gurgaon.</playtext>
-        <record format="wav" silence="3" maxduration="30" >${sid}</record>
+        <recognize type="ggl" timeout="5" silence="2" lang="en-IN" />
+        <playtext>We are processing your data. Please wait. </playtext>
         </response> `
-        // <recognize type="ggl" timeout="10" silence="3" lang="en-IN" />
-        // <playtext>We are processing your data. Please wait. </playtext>
+        // <record format="wav" silence="2" maxduration="30" >${sid}</record>
 
       break
     case 'Record':
@@ -43,20 +43,26 @@ export default ({url, event, data, cid: customerNo, sid}) => {
         
         return axios.get(url).then(res =>{
         if (!res.data.agents.length) {
-          return Promise.reject('No agents found')
+          content = `<?xml version="1.0" encoding="UTF-8"?>
+            <response sid="${sid}">
+            <playtext>We couldn't find any agent in your searched locality. You can try nearby locality.</playtext>
+            <record format="wav" silence="2" maxduration="30" >${sid}</record>
+            </response> `
+          return Promise.resolve({ text: content })
+          // return Promise.reject('No agents found')
         }
           sendSMS(res, customerNo);
-          return res.data.agents[0]
+          let { name, contact }= res.data.agents[0]
+          console.log('contact', name)
+          content = `<?xml version="1.0" encoding="UTF-8"?>
+                <response sid="${sid}">
+                <playtext>WE are connecting to our agent</playtext>
+                <dial record="true" limittime="1000" timeout="30" moh="default" >${'09811785389' || `0${contact.toString().slice(-10)}`}</dial>
+                </response>`
+          return Promise.resolve({ text: content })
         })
-      }).then(({name, contact}) => {
-        console.log('contact', name)
-        content = `<?xml version="1.0" encoding="UTF-8"?>
-              <response sid="${sid}">
-              <playtext>WE are connecting to our agent</playtext>
-              <dial record="true" limittime="1000" timeout="30" moh="default" >${'09811785389' || `0${contact.toString().slice(-10)}`}</dial>
-              </response>`
-        return Promise.resolve({ text: content })
       })
+      
     case 'Dial':
       content = `<?xml version="1.0" encoding="UTF-8"?>
         <response sid="${sid}">
