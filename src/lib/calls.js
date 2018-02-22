@@ -37,7 +37,7 @@ class Calls {
   addAction(id, phone, action) {
     this.getCallDetails(id, phone).addAction(action)
     return this
-    
+
   }
   addRecording(id, phone, { url, data }) {
     return this.getCallDetails(id, phone).setCallRecord({ url, data })

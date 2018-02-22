@@ -14,20 +14,45 @@ let client = new speech.SpeechClient({
 export default (fileName) => {
   let fileNameTrimmed = fileName.substr(fileName.lastIndexOf('/') + 1)
   let fileExtenstion = fileName.substr(fileName.lastIndexOf('.') + 1)
-  return download(fileName, './src/data').then(() => {
-    if (fileExtenstion === 'mp3') {
-      return changeFormat(__dirname + '/../data/' + fileNameTrimmed, __dirname + '/../data/' + fileNameTrimmed.substr(0, fileNameTrimmed.indexOf('.')) + '-converted' + '.wav').then(() => {
-        return getTextData(fileNameTrimmed, fileExtenstion)
+
+  let seconds = 0;
+
+  function downloadFile(){
+      console.log('=======>>>>>>>>>',fileName);
+      return download(fileName, './src/data').then(() => {
+        if (fileExtenstion === 'mp3') {
+          return changeFormat(__dirname + '/../data/' + fileNameTrimmed, __dirname + '/../data/' + fileNameTrimmed.substr(0, fileNameTrimmed.indexOf('.')) + '-converted' + '.wav').then(() => {
+            return getTextData(fileNameTrimmed, fileExtenstion)
+          })
+        } else {
+          return getTextData(fileNameTrimmed, fileExtenstion)
+        }
+      }).catch((err) => {
+        if(seconds >= 5000){
+            fileNameTrimmed = 'test.wav'
+            fileExtenstion = 'mp3'
+            return getTextData(fileNameTrimmed, fileExtenstion)
+        }else {
+            throw err;
+        }
       })
-    } else {
-      return getTextData(fileNameTrimmed, fileExtenstion)
-    }
-  }).catch((err) => {
-    console.log(err)
-    fileNameTrimmed = 'test.wav'
-    fileExtenstion = 'mp3'
-    return getTextData(fileNameTrimmed, fileExtenstion)
-  })
+  }
+
+  return new Promise((resolve, reject) => {
+        let time = 0;
+        (function retryApi(){
+            console.log('---------------------seconds .......',seconds);
+            seconds += 1000;
+            setTimeout(()=>{
+                time = 1000;
+                downloadFile().then((resp)=>{
+                    resolve(resp);
+                }).catch((err)=>{
+                    retryApi();
+                });
+            }, time)
+        })();
+  });
 
 }
 
