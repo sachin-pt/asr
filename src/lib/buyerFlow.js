@@ -40,7 +40,7 @@ export default ({url, event, data, cid: customerNo, sid}) => {
         console.log("text", text)
         let url = `http://localhost:5010/apis/nc/hack-result?query=${text}&${dataSet.service}`
         console.log("top seller call", url)
-        
+
         return axios.get(url).then(res =>{
         if (!res.data.agents.length) {
           return Promise.reject('No agents found')

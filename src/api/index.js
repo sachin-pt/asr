@@ -7,6 +7,7 @@ export default () => {
 	// perhaps expose some API metadata at the root
 	api.use('/menu', (req, res) => {
 		menu(req.query).then(({ text }) => {
+			console.log('---------------------',text);
 			if (!text) {
 				throw new Error("Some error")
 			}
