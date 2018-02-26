@@ -1,7 +1,7 @@
 {
   "name": "asr",
   "version": "0.3.0",
-  "description": "IVR Speech Recognition",
+  "description": "IVR  Speech Recognition",
   "main": "dist",
   "scripts": {
     "dev": "nodemon --inspect -w src --exec \"babel-node src --presets es2015,stage-0\"",
